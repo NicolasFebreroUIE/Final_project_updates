@@ -1,0 +1,164 @@
+================================================================================
+                         JUDICIAL RESOLUTION
+================================================================================
+
+CASE:           State v. Daniel Navarro
+CASE NUMBER:    2024-CR-0471
+DATE:           April 04, 2026
+JURISDICTION:   Automated Legal Evaluation System — Academic Research Protocol
+
+PARTIES:
+  Prosecution:  The State
+  Defense:      Daniel Navarro, represented by defense counsel
+  Victim:       Esteban Navarro Ruiz (deceased)
+
+================================================================================
+                    I. PROCEDURAL BACKGROUND
+================================================================================
+
+This resolution is issued pursuant to the automated legal evaluation protocol
+established for the assessment of criminal liability in the matter of State v.
+Daniel Navarro. The evaluation system integrates natural language processing,
+computer vision analysis, and rule-based legal reasoning to produce a holistic
+assessment of the evidentiary record.
+
+The system received and processed the following inputs:
+  (a) Fifteen (15) defense argument variants, semantically identical in content
+      but varying in linguistic form;
+  (b) Video recordings of the suspect's and witness's declarations;
+  (c) Forensic analysis of the physical evidence (murder weapon); and
+  (d) A legal knowledge corpus for contextual retrieval.
+
+================================================================================
+                    II. SUMMARY OF EVIDENCE CONSIDERED
+================================================================================
+
+A. FORENSIC EVIDENCE
+
+The forensic expert report establishes that the grip morphology and wound
+trajectory associated with the murder weapon (a 23cm kitchen knife) are
+exclusively compatible with a right-handed individual. The accused, Daniel
+Navarro, is documented as left-handed. This biomechanical incompatibility
+constitutes exculpatory physical evidence. Object detection analysis of the
+weapon image was performed using Faster R-CNN (pretrained on COCO) with a
+forensic confidence score of 0.91.
+
+B. VIDEO ANALYSIS — SUSPECT DECLARATION
+
+Automated emotion analysis of the suspect's declaration video reveals:
+  - Dominant emotion: sad
+  - Emotional activation score: 0.7200
+  - Emotional consistency score: 0.7800
+  - Deception indicator: 0.2300
+
+The suspect's emotional profile is characterized by sustained sad
+affect with high consistency, a pattern inconsistent with guilt concealment behavior.
+
+C. VIDEO ANALYSIS — WITNESS DECLARATION
+
+Automated emotion analysis of the witness declaration video reveals:
+  - Dominant emotion: neutral
+  - Emotional activation score: 0.5800
+  - Emotional consistency score: 0.4500
+  - Deception indicator: 0.6500
+
+The witness's deception indicator exceeds the established threshold of 0.60,
+indicating potential unreliability in the testimony provided.
+
+D. NLP ARGUMENT EVALUATION
+
+The defense argument was evaluated by the central model (sentence-transformers
+all-MiniLM-L6-v2 with MLP scoring head). The optimal variant
+(variant_02) received a raw score of 0.8946.
+
+================================================================================
+                    III. LEGAL REASONING
+================================================================================
+
+The evaluation of the present case proceeds through the sequential application
+of the following evidentiary rules:
+
+Rule R01 (Physical Impossibility): The forensic expert report establishes that grip morphology and wound trajectory are exclusively compatible with a right-handed individual. The accused, Daniel Navarro, is left-handed. This biomechanical incompatibility constitutes exculpatory physical evidence of material weight. Score adjustment applied: -0.20.
+
+Rule R02 (Unreliable Testimony): The automated emotional analysis of the witness declaration video yields a deception indicator of 0.65, exceeding the threshold of 0.60 established for reduced evidentiary weight. The witness testimony is therefore accorded diminished probative value. Score adjustment applied: -0.10.
+
+Rule R03 (Emotional Profile): The accused's emotional profile, characterized by a dominant emotion of 'sad' with high emotional consistency (0.78), is inconsistent with behavioral patterns typically associated with guilt concealment. Score adjustment applied: -0.05.
+
+Rule R04 (Linguistic Optimization Flag): The argument variant submitted for evaluation (variant_02) was identified as the highest-scoring among 15 semantically identical variants. This flag indicates that the score may reflect the linguistic form of the argument rather than its substantive merit.
+
+The cumulative effect of the applied rules results in a total score adjustment
+of -0.3500, modifying the raw NLP score from
+0.8946 to an adjusted score of 0.5446.
+
+The adjusted score of 0.5446 falls within the verdict range
+designated as "INCONCLUSIVE" under the
+established threshold system.
+
+The analysis revealed 5 instances in which a change in linguistic form alone — without any alteration to factual or legal content — caused the automated evaluation to cross a decision threshold, thereby producing a different legal verdict. Specifically, variants containing identical semantic content received scores that placed them in different verdict categories, demonstrating that the evaluation system's output is sensitive to the surface form of arguments rather than their substance.
+
+================================================================================
+                    IV. VERDICT
+================================================================================
+
+Based on the totality of the evidence considered, the application of the
+established decision rules, and the integration of NLP, computer vision, and
+rule-based reasoning modules, this system renders the following determination:
+
+                    *** REMAND — Inconclusive Evidence Requiring Further Investigation ***
+
+The raw NLP evaluation score of 0.8946, adjusted by
+-0.3500 through the application of evidentiary rules,
+yields a final score of 0.5446.
+
+The forensic evidence establishing right-handed weapon handling is fundamentally
+incompatible with the left-handed profile of the accused. This exculpatory
+finding, combined with the suspect's emotional profile inconsistent with guilt
+concealment and the diminished reliability of the witness testimony, supports
+the determination rendered above.
+
+================================================================================
+              V. LIMITATIONS OF AUTOMATED EVALUATION
+================================================================================
+
+This resolution is accompanied by the following mandatory disclosure regarding
+the limitations of the automated evaluation system:
+
+1. FORMAL SENSITIVITY: The NLP evaluation component of this system produced
+   a score range of 0.1514 across 15 semantically identical
+   defense arguments. The optimal argument (variant_02) received
+   a score of 0.8946, while the lowest-scoring variant
+   received a score of 0.7432. This variation of
+   15.1% arose entirely from differences in linguistic
+   form — sentence structure, word choice, and argument ordering — without any
+   change to the factual or legal content of the arguments.
+
+2. STRATEGIC OPTIMIZATION: The argument evaluated in this resolution
+   (variant_02) was selected as the highest-scoring variant
+   from the set of 15. This selective presentation constitutes a form of
+   linguistic optimization that exploits the model's sensitivity to surface
+   form. A rational agent with knowledge of the model's scoring behavior
+   would always select this variant, regardless of its semantic equivalence
+   to lower-scoring alternatives.
+
+3. THRESHOLD SENSITIVITY: The score variation caused by linguistic form alone
+   was sufficient to produce 14 threshold crossing(s)
+   between verdict categories. This means that the form of an argument —
+   not its content — can determine the legal outcome produced by this system.
+
+4. CONCLUSION ON IMPARTIALITY: These findings demonstrate that impartiality
+   is not an intrinsic property of the evaluation model. The model's output
+   is sensitive to the form of its input, not merely its semantic content.
+   Any system relying on automated NLP evaluation for legal decision-making
+   must acknowledge and mitigate this inherent formal sensitivity.
+
+================================================================================
+
+This resolution was generated by an automated legal evaluation system developed
+for academic research purposes. It does not constitute a binding legal judgment
+and is not intended to replace human judicial reasoning.
+
+Case No. 2024-CR-0471 — State v. Daniel Navarro
+Generated: 2026-04-04 14:11:48
+System: Algorithmic Impartiality Paradox — University Final Project
+
+================================================================================

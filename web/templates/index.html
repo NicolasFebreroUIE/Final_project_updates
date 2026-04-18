@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INITIALIZING... ALIS-CORE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #0c0c0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #boot-container {
+            width: 1000px;
+            max-width: 95%;
+            border-top: 6px solid var(--accent-gold);
+            background: #0d0d10;
+            padding: 4rem;
+            box-shadow: 0 60px 120px rgba(0,0,0,0.9);
+        }
+        .terminal {
+            min-height: 400px;
+            font-size: 1rem;
+            color: #a8e6cf;
+            text-shadow: 0 0 5px rgba(168, 230, 207, 0.2);
+        }
+        #enter-btn {
+            display: none;
+            margin-top: 4rem;
+            text-align: center;
+            animation: fadeIn 1s ease forwards;
+        }
+        .header-branding {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="boot-container">
+        <div class="header-branding">
+            <h1 style="font-family: 'Playfair Display', serif; color: var(--accent-gold); letter-spacing: 0.35em; font-size: 1.4rem; margin: 0; font-weight: 900;">
+                ALGORITHMIC LEGAL INTEGRITY SYSTEM (ALIS)
+            </h1>
+            <p style="font-size: 0.7rem; letter-spacing: 0.25em; color: rgba(255,255,255,0.3); margin-top: 0.8rem; text-transform: uppercase;">
+                PROPERTY OF THE MINISTRY OF JUSTICE | AUDIENCIA PROVINCIAL DE MADRID
+            </p>
+        </div>
+        
+        <div class="terminal" id="terminal"></div>
+        
+        <div id="enter-btn">
+            <a href="/case" class="btn btn-primary" style="padding: 1.2rem 4rem;">[ AUTHORIZE RECURSIVE REPLAY ]</a>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const enterBtn = document.getElementById('enter-btn');
+        
+        const lines = [
+            "> INITIALIZING SECURE CORE... SUCCESS",
+            "> LOADING MODULE: LEGAL-BERT-SPANISH (TRANSFORMER ENCODER)",
+            "> EMBEDDING DIMENSIONS: 768-D / 12-LAYERS",
+            "> IDENTIFYING CRIMINAL INVESTIGATION FILE #2024-HOM-0471",
+            "──────────────────────────────────────────────────────────",
+            "> [IO] Checking Investigative Matrix ........ OK",
+            "> [IO] Pre-vectorized Defense Strategies .... OK",
+            "> [IO] Forensic Morphology Metadata ......... OK",
+            "> [IO] Physical Source: weapon_image.jpg .... OK",
+            "> [IO] Legal Context: eurlex-homicide-2024 .. OK",
+            "──────────────────────────────────────────────────────────",
+            "> SYSTEM STATE: SYNCHRONIZED",
+            "> DATA INTEGRITY: VERIFIED",
+            "> AUTHORIZATION TYPE: RECURSIVE REPLAY"
+        ];
+
+        let lineIndex = 0;
+
+        function typeLine() {
+            if (lineIndex < lines.length) {
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                terminal.appendChild(line);
+                
+                let charIndex = 0;
+                const text = lines[lineIndex];
+                
+                function typeChar() {
+                    if (charIndex < text.length) {
+                        line.textContent += text[charIndex];
+                        charIndex++;
+                        setTimeout(typeChar, 10);
+                    } else {
+                        lineIndex++;
+                        setTimeout(typeLine, 80);
+                    }
+                }
+                
+                typeChar();
+            } else {
+                enterBtn.style.display = 'block';
+            }
+        }
+
+        window.onload = () => {
+            console.log("[SYSTEM] Resetting local browser state for fresh session...");
+            localStorage.clear();
+            setTimeout(typeLine, 900);
+        };
+    </script>
+</body>
+</html>

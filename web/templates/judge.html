@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="page-intro">
+        <h1>JUDICIAL DELIBERATION PANEL</h1>
+        <p>TERMINAL ACCESS: SUPERIOR COURT OF MADRID | ALIS-CORE CHAMBER</p>
+    </div>
+
+    <div class="grid">
+        <!-- Input Panel -->
+        <div class="card">
+            <h3>SEMANTIC STRATEGY SELECTION</h3>
+            <p style="font-size: 0.85rem; color: var(--text-body); margin-bottom: 2rem; border-left: 2px solid var(--accent-gold); padding-left: 1rem;">
+                Select the final defense strategy to be integrated into the Alis-Core judicial reasoning engine. The engine will evaluate the <strong>linguistic persuasion</strong> relative to physical evidence.
+            </p>
+            
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label>Select Defense Strategy</label>
+                <select id="strategy-select" class="form-control" style="background: #161b22; color: #e6edf3; border: 1px solid var(--border-document); padding: 12px; border-radius: 6px; cursor: pointer;">
+                    {% set max_score = scores.values()|max if scores else 0 %}
+                    {% set min_score = scores.values()|min if scores else 0 %}
+                    
+                    {% for vid, score in scores.items()|sort %}
+                    <option value="{{ vid }}" style="background: #0d1117; color: white;">
+                        Defense Strategy {{ vid.split('_')[1] }}
+                        {% if score == max_score %} (Optimal Strategy){% endif %}
+                        {% if score == min_score %} (Worst Strategy){% endif %}
+                    </option>
+                    {% endfor %}
+                    
+                    {% if not scores %}
+                    <option value="variant_01">Defense Strategy 01 (Fallback)</option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div id="judge-log" class="terminal" style="height: 300px; margin-bottom: 2rem;">
+                <div class="terminal-line">Virtual Bench Status: READY</div>
+                <div class="terminal-line">Awaiting Magistrate's command...</div>
+            </div>
+
+            <div style="text-align: center;">
+                <button id="deliberate-btn" class="btn btn-primary" onclick="deliberate()">[ PERPETUATE DELIBERATION ]</button>
+            </div>
+        </div>
+
+        <!-- Real-time Result Panel -->
+        <div class="card">
+            <h3>ALGORITHMIC GUILT PROBABILITY</h3>
+            <div style="text-align: center; margin-top: 2rem;">
+                <div id="guilt-meter-val" style="font-size: 5rem; font-family: var(--font-heading); color: var(--accent-gold);">
+                    --%
+                </div>
+                <p id="verdict-label" style="letter-spacing: 0.2em; font-weight: bold; margin-bottom: 2rem; color: var(--text-body);">AWAITING DATA...</p>
+                
+                <div class="progress-container" style="background: rgba(255,255,255,0.1); height: 12px; border-radius: 6px; margin: 0 2rem;">
+                    <div id="guilt-bar" style="width: 0%; height: 100%; background: var(--accent-gold); transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin: 1rem 2rem; font-size: 0.7rem; color: #8b949e;">
+                    <span>ABSOLUTE INNOCENCE</span>
+                    <span>BEYOND REASONABLE DOUBT (97%+)</span>
+                </div>
+            </div>
+
+            <!-- Guilt Scale Reference (Legend) -->
+            <div style="margin: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-document);">
+                <h5 style="margin-top: 0; color: var(--accent-gold); font-size: 0.8rem; letter-spacing: 0.1em;">JUDICIAL GUILT SCALE REFERENCE (0-100%)</h5>
+                <ul style="font-size: 0.75rem; color: var(--text-body); list-style: none; padding: 0; line-height: 1.6;">
+                    <li><span style="color: var(--success-legal);">●</span> <strong>0% - 20%</strong>: Excessive Probative Deficit (Absolute Innocence)</li>
+                    <li><span style="color: var(--success-legal);">●</span> <strong>20% - 50%</strong>: Insufficient Evidence (Investigation Open)</li>
+                    <li><span style="color: var(--accent-gold);">●</span> <strong>50% - 90%</strong>: Probable Cause (Remand/Indictment)</li>
+                    <li><span style="color: var(--danger-legal);">●</span> <strong>90% - 97%</strong>: High Probability of Guilt</li>
+                    <li><span style="color: var(--danger-legal);">●</span> <strong>97% - 100%</strong>: Beyond Reasonable Doubt (Conviction)</li>
+                </ul>
+            </div>
+
+            <!-- Razor's Edge Alert -->
+            <div id="razor-alert" class="card" style="display: none; background: rgba(161, 43, 43, 0.1); border: 1px solid var(--danger-legal); margin-top: 1rem;">
+                <h4 style="color: var(--danger-legal); margin-top: 0;">⚠ PROCEDURAL UNCERTAINTY: THE RAZOR'S EDGE</h4>
+                <p style="font-size: 0.8rem; color: var(--text-body); line-height: 1.5;">
+                    The system has detected a <strong>Critical Impartiality Gap</strong>. The current verdict is mathematically dependent on <strong>linguistic persuasion</strong> rather than physical evidence. A minimal semantic shift would flip the legal outcome.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Sentencia Document (Hidden until ready) -->
+    <div id="sentencia-doc" class="document-page animate-in" style="display: none; margin-top: 4rem; margin-bottom: 5rem;">
+        <div class="file-stamp">OFFICIAL</div>
+        <div id="sentencia-findings"></div>
+        
+        <div style="text-align: center; margin-top: 4rem;">
+            <button id="virtual-presence-btn" class="btn btn-primary" onclick="openAvatarVerdict()" style="margin-right: 1rem; border: 2px solid var(--accent-gold); background: transparent; color: var(--accent-gold);">[ INITIATE VIRTUAL PRESENCE ]</button>
+            <button id="play-audio-btn" class="btn btn-primary" onclick="playVerdictAudio()" style="margin-right: 1rem; display: none;">[ PLAY AUDIO ]</button>
+            <button class="btn btn-secondary" onclick="window.print()">[ PRINT SENTENCIA ]</button>
+        </div>
+    </div>
+</div>
+
+<!-- Audio element for gTTS -->
+<audio id="verdict-audio"></audio>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const log = document.getElementById('judge-log');
+    const deliberateBtn = document.getElementById('deliberate-btn');
+    const meterVal = document.getElementById('guilt-meter-val');
+    const verdictLabel = document.getElementById('verdict-label');
+    const guiltBar = document.getElementById('guilt-bar');
+    const razorAlert = document.getElementById('razor-alert');
+    const sentenciaDoc = document.getElementById('sentencia-doc');
+    const findingsArea = document.getElementById('sentencia-findings');
+    const verdictAudio = document.getElementById('verdict-audio');
+    const playAudioBtn = document.getElementById('play-audio-btn');
+
+    function deliberate() {
+        const variantId = document.getElementById('strategy-select').value;
+        deliberateBtn.disabled = true;
+        sentenciaDoc.style.display = 'none';
+        playAudioBtn.style.display = 'none';
+        log.innerHTML = '<div class="terminal-line">[SYSTEM] Synthesizing Case Indicia...</div>';
+        
+        socket.emit('generate_verdict', { variant_id: variantId });
+    }
+
+    function playVerdictAudio() {
+        verdictAudio.play();
+    }
+
+    function openAvatarVerdict() {
+        window.open('/avatar-verdict', '_blank');
+    }
+
+    socket.on('judge_log', (data) => {
+        const div = document.createElement('div');
+        div.className = 'terminal-line';
+        div.innerText = `[EVENT] ${data.message}`;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+    });
+
+    socket.on('verdict_ready', (results) => {
+        // Save to localStorage for the Avatar page
+        localStorage.setItem('last_verdict', JSON.stringify(results));
+        
+        // Update Meter
+        const guiltPct = (results.adjusted_score * 100).toFixed(2);
+        meterVal.innerText = `${guiltPct}%`;
+        verdictLabel.innerText = results.verdict_description.toUpperCase();
+        guiltBar.style.width = `${guiltPct}%`;
+        
+        // Color based on status
+        if (results.adjusted_score > 0.90) {
+            meterVal.style.color = 'var(--danger-legal)';
+            guiltBar.style.background = 'var(--danger-legal)';
+        } else if (results.adjusted_score < 0.40) {
+            meterVal.style.color = 'var(--success-legal)';
+            guiltBar.style.background = 'var(--success-legal)';
+        } else {
+            meterVal.style.color = 'var(--accent-gold)';
+            guiltBar.style.background = 'var(--accent-gold)';
+        }
+
+        // Razor's Edge Alert
+        if (results.razors_edge) {
+            razorAlert.style.display = 'block';
+        } else {
+            razorAlert.style.display = 'none';
+        }
+
+        // Population function with aggressive line trimming and markdown artifact removal
+        const cleanText = (txt) => txt.trim()
+            .replace(/^\s+/gm, '')             // Kill leading space
+            .replace(/[\*_]{1,2}/g, '')        // Kill bold/italic markers
+            .replace(/^#{1,6}\s?/gm, '');      // Kill headers
+
+        // Populate Sentencia with styling for formal distance
+        const s = results.sentencia;
+        findingsArea.innerHTML = `
+            <!-- Institutional Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; padding-bottom: 2rem; margin-bottom: 3rem; position: relative; z-index: 10;">
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <img src="/static/cnp_logo.png" style="height: 100px; filter: contrast(1.1);">
+                    <div>
+                        <p style="margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">SUPERIOR COURT OF JUSTICE</p>
+                        <p style="margin: 0; font-size: 0.9rem; font-weight: 700;">MADRID - CRIMINAL SECTION NO. 12</p>
+                        <p style="margin: 0; font-size: 0.75rem; color: #555;">ALIS-CORE PROCEDURAL UNIT</p>
+                    </div>
+                </div>
+                <!-- CSS Judicial Seal -->
+                <div style="border: 2px solid #000; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; font-size: 0.6rem; font-weight: 900; line-height: 1.2; letter-spacing: 1px;">
+                    JUDICIAL<br>BRANCH<br>OF SPAIN
+                </div>
+            </div>
+
+            <!-- Sentencia Body with Watermark -->
+            <div style="position: relative; z-index: 5;">
+                <!-- Watermark -->
+                <div style="position: absolute; top: 15%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 5rem; color: rgba(0,0,0,0.04); font-weight: 900; pointer-events: none; z-index: 0; border: 15px solid rgba(0,0,0,0.04); padding: 20px; text-align: center;">
+                    LEGALLY VALIDATED<br>ALIS-CORE 1.0
+                </div>
+
+                <div class="section" style="line-height: 2; margin-bottom: 3rem; text-align: justify; font-size: 1.05rem; white-space: pre-line; position: relative; z-index: 1;">
+                    ${cleanText(s.facts)}
+                </div>
+                <div class="section" style="line-height: 2; margin-bottom: 3rem; text-align: justify; font-size: 1.05rem; white-space: pre-line; position: relative; z-index: 1;">
+                    ${cleanText(s.reasoning)}
+                </div>
+                <div class="section" style="line-height: 2; background: rgba(0,0,0,0.02); padding: 3rem; border: 1px solid rgba(0,0,0,0.08); font-weight: 700; font-size: 1.1rem; white-space: pre-line; border-left: 5px solid #000; position: relative; z-index: 1;">
+                    ${cleanText(s.decision)}
+                </div>
+            </div>
+
+            <!-- Signatures Section -->
+            <div style="margin-top: 6rem; display: flex; justify-content: space-around; font-size: 0.8rem; font-weight: bold; text-align: center; border-top: 1px solid #ddd; padding-top: 2rem;">
+                <div style="width: 250px;">
+                    <p style="margin-bottom: 4rem;">SIGNED: PRESIDING MAGISTRATE</p>
+                    <div style="border-top: 1px solid #000; padding-top: 10px; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #666;">
+                        VERIFIED: 2024-CR-0471-ALIS-SIG
+                    </div>
+                </div>
+                <div style="width: 250px;">
+                    <p style="margin-bottom: 4rem;">SIGNED: JUDICIAL CLERK (L.A.J.)</p>
+                    <div style="border-top: 1px solid #000; padding-top: 10px; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #666;">
+                        STAMP NO: 0047-9221-MDR
+                    </div>
+                </div>
+            </div>
+        `;
+        sentenciaDoc.style.display = 'block';
+        sentenciaDoc.scrollIntoView({ behavior: 'smooth' });
+
+        // Ready Audio (but don't play)
+        if (results.audio_available) {
+            verdictAudio.src = `/static/audio/verdict.mp3?t=${new Date().getTime()}`;
+            playAudioBtn.style.display = 'inline-block';
+        }
+
+        deliberateBtn.disabled = false;
+    });
+</script>
+{% endblock %}

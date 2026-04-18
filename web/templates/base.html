@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALGORITHMIC LEGAL INTEGRITY SYSTEM (ALIS)</title>
+    <!-- Premium Google Fonts: Playfair Display for Serif Elegance, EB Garamond for Body, Inter for Technical Labels -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SocketIO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <nav class="nav-legal">
+        <div class="nav-branding">
+            <span class="branding-main">NATIONAL POLICE CORPS</span>
+            <span class="branding-sub">CRIMINAL INVESTIGATION UNIT | FILE NO. 2024-HOM-0471</span>
+        </div>
+        <div class="nav-links">
+            <a href="/case" class="nav-link {% if request.path == '/case' %}active{% endif %}">INVESTIGATION</a>
+            <a href="/training" class="nav-link {% if request.path == '/training' %}active{% endif %}">MODEL TRAINING</a>
+            <a href="/evidence" class="nav-link {% if request.path == '/evidence' %}active{% endif %}">FORENSICS</a>
+            <a href="/videos" class="nav-link {% if request.path == '/videos' %}active{% endif %}">WITNESS ANALYSIS</a>
+            <a href="/arguments" class="nav-link {% if request.path == '/arguments' %}active{% endif %}">DEFENSE STRATEGY</a>
+            <a href="/judge" class="nav-link {% if request.path == '/judge' %}active{% endif %}">RESOLUTION</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        const socket = io();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

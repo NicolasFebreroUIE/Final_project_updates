@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.video-wrapper { position: relative; width: 640px; height: 360px; background: #000; }
+.video-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+.video-panel { display: flex; gap: 20px; margin-bottom: 30px; }
+.video-left { width: 640px; }
+.video-right { flex: 1; }
+.transcript-box {
+    margin-top: 10px; padding: 12px; background: #0a0e14; border: 1px solid #FFB000;
+    color: #c8d0d8; font-family: 'Courier New', monospace; font-size: 0.85rem;
+    height: 120px; overflow-y: auto; line-height: 1.5;
+}
+.transcript-box .emotion-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 0.75rem;
+    font-weight: bold; margin-left: 4px; background: rgba(255, 176, 0, 0.2); color: #FFB000;
+}
+.forensic-log-header {
+    color: #FFB000; font-family: monospace; font-size: 0.8rem;
+    padding: 4px 0; border-bottom: 1px solid #333; margin-bottom: 6px;
+}
+</style>
+
+<!-- SUSPECT VIDEO -->
+<div class="card" id="suspectContainer">
+    <h3>Primary Suspect</h3>
+    <div class="video-panel">
+        <div class="video-left">
+            <div class="video-wrapper">
+                <video id="suspectVideo" src="/data/videos/suspect_video.mp4?v=999" controls crossorigin="anonymous" style="width: 100%; height: 100%;"></video>
+                <canvas id="suspectOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
+            </div>
+            <div class="transcript-box" id="suspectTranscript">
+                <div class="forensic-log-header">▸ FORENSIC TRANSCRIPT LOG — SUSPECT</div>
+                <em>[Awaiting transcription...]</em>
+            </div>
+            <button id="startSuspectAnalysis" class="btn btn-primary" style="width: 100%; margin-top: 10px;">[ INITIATE FORENSIC PASS ]</button>
+        </div>
+        <div class="video-right">
+            <h2>Dominant Emotion: <span id="suspectEmotionLabel" style="color: var(--accent);">ANALYZING</span></h2>
+            
+            <div style="margin-top:20px;">
+                <label>Activation Score: <span id="sActVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="sActBar" class="progress-bar-fill" style="width: 0%; background-color: var(--accent);"></div></div>
+            </div>
+            
+            <div style="margin-top:20px;">
+                <label>Consistency Score: <span id="sConVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="sConBar" class="progress-bar-fill" style="width: 0%; background-color: var(--warning);"></div></div>
+            </div>
+            
+            <div style="margin-top:20px;">
+                <label>Deception Indicator: <span id="sDecVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="sDecBar" class="progress-bar-fill" style="width: 0%; background-color: var(--danger);"></div></div>
+            </div>
+            
+            <div style="margin-top: 20px; height: 150px;">
+                <canvas id="sChart"></canvas>
+            </div>
+            
+            <div id="suspectConclusion" class="card hidden" style="margin-top: 15px; border-color: var(--success); font-family: monospace;"></div>
+            
+            <button id="syncSuspect" class="btn hidden" style="width: 100%; margin-top: 10px; background: #1a1a1a; border: 1px solid var(--success); color: var(--success);">[ SYNC SUSPECT DATA TO CENTRAL MODEL ]</button>
+        </div>
+    </div>
+</div>
+
+<!-- WITNESS VIDEO -->
+<div class="card" id="witnessContainer">
+    <h3>Key Witness</h3>
+    <div class="video-panel">
+        <div class="video-left">
+            <div class="video-wrapper">
+                <video id="witnessVideo" src="/data/videos/witness_video.mp4?v=999" controls crossorigin="anonymous" style="width: 100%; height: 100%;"></video>
+                <canvas id="witnessOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
+            </div>
+            <div class="transcript-box" id="witnessTranscript">
+                <div class="forensic-log-header">▸ FORENSIC TRANSCRIPT LOG — WITNESS</div>
+                <em>[Awaiting transcription...]</em>
+            </div>
+            <button id="startWitnessAnalysis" class="btn btn-primary" style="width: 100%; margin-top: 10px; border-color: var(--warning);">[ INITIATE FORENSIC PASS ]</button>
+        </div>
+        <div class="video-right">
+            <h2>Dominant Emotion: <span id="witnessEmotionLabel" style="color: var(--accent);">ANALYZING</span></h2>
+            
+            <div style="margin-top:20px;">
+                <label>Activation Score: <span id="wActVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="wActBar" class="progress-bar-fill" style="width: 0%; background-color: var(--accent);"></div></div>
+            </div>
+            
+            <div style="margin-top:20px;">
+                <label>Consistency Score: <span id="wConVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="wConBar" class="progress-bar-fill" style="width: 0%; background-color: var(--warning);"></div></div>
+            </div>
+            
+            <div style="margin-top:20px;">
+                <label>Deception Indicator: <span id="wDecVal">0.0</span></label>
+                <div class="progress-bar-container"><div id="wDecBar" class="progress-bar-fill" style="width: 0%; background-color: var(--danger);"></div></div>
+            </div>
+            
+            <div style="margin-top: 20px; height: 150px;">
+                <canvas id="wChart"></canvas>
+            </div>
+            
+            <div id="witnessConclusion" class="card hidden" style="margin-top: 15px; border-color: var(--success); font-family: monospace;"></div>
+            
+            <button id="syncWitness" class="btn hidden" style="width: 100%; margin-top: 10px; background: #1a1a1a; border: 1px solid var(--warning); color: var(--warning);">[ SYNC WITNESS DATA TO CENTRAL MODEL ]</button>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="/arguments" class="btn hidden" id="nextBtn" style="padding: 1.5rem 4rem; font-size: 1rem; border-width: 2px;">
+        [ PROCEED TO DEFENSE STRATEGY SELECTION → ]
+    </a>
+</div>
+
+<div style="text-align: center; margin-top: 20px; color: #666;">
+    <i>Note: To begin real-time analysis, play the videos directly using their playback controls.</i>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/videos.js') }}"></script>
+{% endblock %}

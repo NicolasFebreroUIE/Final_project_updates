@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+outputs/
+data/videos/
+*.mp4
+*.mp3
+.gemini/
+.git/
+node_modules/

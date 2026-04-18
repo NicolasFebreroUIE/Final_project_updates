@@ -1,0 +1,303 @@
+/* ALIS — Algorithmic Legal Integrity System — CSS Redesign */
+
+:root {
+  /* Elegant & Formal Legal-Tech Palette */
+  --bg-deep: #0a0a0c;        /* Deep midnight grey (the environment) */
+  --bg-surface: #1a1a1c;     /* Card surface (dark) */
+  --bg-document: #fdfcf8;    /* Ivory parchment white (the legal document) */
+  
+  --text-main: #e8e8f0;      /* Modern light readability */
+  --text-body: #c0c0c8;      /* Greyed-out body legal text */
+  --text-document: #121212;  /* Traditional black ink for SENTENCIA */
+  
+  --accent-gold: #c5a059;    /* Mature gold for stamps/titles */
+  --accent-blue: #3d5afe;    /* Technical intelligence (Legal-BERT) */
+  
+  --danger-legal: #a12b2b;   /* Formal red for warning/guilty */
+  --success-legal: #2e7d32;  /* Formal green for acquittal */
+  
+  --border-formal: rgba(255, 255, 255, 0.1);
+  --border-document: rgba(0, 0, 0, 0.15);
+  
+  /* Typography */
+  --font-serif: 'EB Garamond', serif;
+  --font-heading: 'Playfair Display', serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* Legal Document Aesthetics */
+.document-page {
+  background-color: var(--bg-document);
+  color: var(--text-document);
+  padding: 4rem 3rem;
+  border-radius: 2px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+  margin-top: 2rem;
+  position: relative;
+  border-top: 8px solid var(--accent-gold);
+}
+
+.document-page h1, .document-page h2, .document-page h3 {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 2rem;
+  font-weight: 900;
+}
+
+.document-page p, .document-page li {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Premium Navigation */
+.nav-legal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background: rgba(10, 10, 12, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-formal);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.branding-main {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: 0.2em;
+  color: var(--text-main);
+}
+
+.branding-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+  margin-top: 0.3rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 3rem;
+}
+
+.nav-link {
+  color: var(--text-body);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--accent-gold);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-gold);
+}
+
+/* Section Containers */
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.page-intro {
+  margin-bottom: 4rem;
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 2rem;
+}
+
+.page-intro h1 {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 900;
+}
+
+.page-intro p {
+  color: var(--text-body);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Elite Cards */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-formal);
+  padding: 3rem;
+  margin-bottom: 2.5rem;
+  border-radius: 4px;
+  transition: all 0.4s ease;
+}
+
+.card:hover { border-color: rgba(197, 160, 89, 0.4); }
+
+.card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 3rem;
+}
+
+/* Data Matrix (Case Overview) */
+.indiciary-matrix {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.matrix-row {
+  border-bottom: 1px solid var(--border-formal);
+}
+
+.matrix-cell {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.matrix-label {
+  color: var(--accent-gold);
+  font-weight: bold;
+  width: 150px;
+}
+
+/* Technical Terminal */
+.terminal {
+  background-color: #0d0d0f;
+  color: #a8e6cf; /* Subtle legal green */
+  font-family: var(--font-mono);
+  padding: 2rem;
+  border: 1px solid #222;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  overflow-y: auto;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+.tech-spec {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-body);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+/* Premium Buttons */
+.btn {
+  background-color: transparent;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  padding: 1rem 3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn:hover {
+  background-color: var(--accent-gold);
+  color: var(--bg-deep);
+}
+
+.btn-primary {
+  background-color: var(--accent-gold);
+  color: var(--bg-deep);
+}
+
+/* Stamp / Seal */
+.file-stamp {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  border: 4px solid var(--danger-legal);
+  color: var(--danger-legal);
+  padding: 0.8rem 1.5rem;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  transform: rotate(7deg);
+  font-size: 1.4rem;
+  opacity: 0.75;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+/* Verdict Styles (Sentencia) */
+.sentencia-view {
+  font-family: var(--font-serif);
+  line-height: 2;
+  text-align: justify;
+}
+
+.sentencia-header { text-align: center; margin-bottom: 4rem; }
+.sentencia-section-title { font-weight: bold; text-decoration: underline; margin-top: 2.5rem; }
+
+.verdict-fallo {
+  text-align: center;
+  font-size: 2.5rem;
+  font-family: var(--font-heading);
+  margin: 4rem 0;
+  letter-spacing: 0.2em;
+  color: var(--danger-legal);
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+}
+
+.verdict-fallo.acquittal { color: var(--success-legal); }
+
+/* Utility */
+.hidden { display: none !important; }
+
+/* Animation */
+.animate-in { animation: fadeIn 0.8s ease forwards; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .document-page { padding: 2rem; }
+}

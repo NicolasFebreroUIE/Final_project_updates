@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="page-intro">
+        <h1>INVESTIGATION MATRIX</h1>
+        <p>SYSTEM ACCESS: SUPERIOR COURT OF MADRID | CIU-UNIT</p>
+    </div>
+
+    <!-- Technical-Operational Report Structure -->
+    <div class="document-page" style="position: relative; padding: 5rem; border: 1px solid #000; background: #fff; color: #000; box-shadow: 20px 20px 0 rgba(0,0,0,0.1); font-family: 'Courier New', Courier, monospace;">
+        
+        <!-- Watermark -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; color: rgba(0,0,0,0.03); font-weight: 900; pointer-events: none; z-index: 0; white-space: nowrap;">
+            INTERNAL USE - POLICE ONLY
+        </div>
+
+        <!-- 1. Institutional Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4rem; border-bottom: 3px double #000; padding-bottom: 2rem; position: relative; z-index: 1;">
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <!-- Updated CNP Logo (Top Left) -->
+                <img src="{{ url_for('static', filename='cnp_logo.png') }}" style="height: 120px; filter: contrast(1.1);">
+                <div>
+                    <p style="margin: 0; font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;">MINISTRY OF INTERIOR</p>
+                    <p style="margin: 0; font-size: 1rem; font-weight: 700;">GENERAL DIRECTORATE OF POLICE</p>
+                    <p style="margin: 0; font-size: 0.8rem; color: #555;">UDEV-6 MADRID CENTRAL - HOMICIDE UNIT</p>
+                </div>
+            </div>
+            <div style="text-align: right; font-size: 0.9rem; line-height: 1.4; font-weight: bold;">
+                <p>FILE NO: 2024-HOM-0471</p>
+                <p>DATE: 14/NOV/2024</p>
+                <p style="color: #d32f2f;">CLASSIFICATION: CONFIDENTIAL</p>
+            </div>
+        </div>
+
+        <!-- 2. Case Identification -->
+        <div style="margin-bottom: 4rem; border: 2px solid #000; padding: 2rem; position: relative; z-index: 1;">
+            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 1.4rem; text-decoration: underline; color: #000;">OFFICIAL INCIDENT REPORT: EVIDENCE & FINDINGS</h2>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #000; font-weight: bold; width: 180px;">CRIME TYPE:</td>
+                    <td style="padding: 10px; border: 1px solid #000;">HOMICIDE (Art. 138 Penal Code)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #000; font-weight: bold;">INVESTIGATION GROUP:</td>
+                    <td style="padding: 10px; border: 1px solid #000;">VIOLENT CRIME UNIT (UDEV-6)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #000; font-weight: bold;">INVESTIGATOR:</td>
+                    <td style="padding: 10px; border: 1px solid #000;">M. VELASCO (BADGE 4782)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 3. Executive Summary & Case Content (Dynamic) -->
+        <div id="case-report-body" style="position: relative; z-index: 1; font-size: 1rem; line-height: 1.8; white-space: pre-wrap; color: #000; border-left: 1px solid #eee; padding-left: 2rem; text-indent: 0 !important;">
+            [ ACCESSING SECURE DATA SERVER... ]
+        </div>
+
+        <div style="margin-top: 6rem; display: flex; justify-content: space-around; font-size: 0.8rem; font-weight: bold; text-align: center; color: #333;">
+            <div style="width: 200px; border-top: 1px solid #000; padding-top: 10px;">SIGNED: LEAD INVESTIGATOR</div>
+            <div style="width: 200px; border-top: 1px solid #000; padding-top: 10px;">SIGNED: SECRETARY</div>
+        </div>
+    </div>
+
+    <!-- Proceed Section -->
+    <div style="text-align: center; margin-top: 4rem; margin-bottom: 5rem;">
+        <p style="font-size: 0.8rem; color: var(--text-body); margin-bottom: 2rem;">The forensic parameters from this case have been vectorized for logic-system ingestion.</p>
+        <a href="/training" class="btn btn-primary" style="padding: 1.2rem 4rem;">[ AUTHORIZE SYSTEM INGESTION ]</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const caseContent = document.getElementById('case-report-body');
+    
+    // Load Case File
+    fetch('/api/case-data')
+        .then(res => res.json())
+        .then(data => {
+            // ROBUST FORMATTING ENGINE
+            const cleanText = (txt) => {
+                return txt.trim()
+                    .split('\n')
+                    // Filter out any Spanish residue that might be prepended/appended
+                    .filter(line => !line.includes('MINISTERIO DEL INTERIOR') && 
+                                   !line.includes('DIRECCIÓN GENERAL') &&
+                                   !line.includes('DILIGENCIA DE EXPOSICIÓN'))
+                    .join('\n')
+                    .replace(/^\s+/gm, '')             // Kill leading space
+                    .replace(/!\[.*?\]\(.*?\)/g, '')   // Kill images
+                    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Kill links
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // BOLD RENDER (**)
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>') // ITALIC RENDER (*)
+                    .replace(/^#{1,6}\s?/gm, '')       // Kill headers (#)
+                    .replace(/^-{3,}/gm, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'); // Separators
+            };
+            
+            caseContent.innerHTML = cleanText(data.description);
+        });
+</script>
+{% endblock %}

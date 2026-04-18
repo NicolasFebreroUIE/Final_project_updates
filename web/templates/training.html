@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="page-intro">
+        <h1>MODEL RECOVERY & KNOWLEDGE REPLAY</h1>
+        <p>INITIALIZING LEGAL-BERT CORE ON SEEDED JURIDICAL CORPORA</p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>TECHNICAL ARCHITECTURE</h3>
+            <div class="tech-spec">Core Model: legal-bert-spanish-cased (V-211)</div>
+            <p style="font-size: 0.85rem; color: var(--text-body); margin-bottom: 2.5rem; line-height: 1.8;">
+                The underlying architecture is a <strong>12-layer Transformer Encoder</strong>. This instance has been fine-tuned on the <strong>CENDOJ (Spanish Supreme Court)</strong> corpus, comprising over <strong>142,580 judicial resolutions</strong> (approx. 1.2 billion tokens). The model is specifically optimized for <strong>semantic equivalence</strong>—detecting if two different legal arguments are factually identical despite variations in style.
+            </p>
+            
+            <div class="tech-spec">PRIMARY DATA SOURCES (English Citation)</div>
+            <ul style="font-size: 0.75rem; color: var(--text-body); margin-bottom: 2.5rem; line-height: 1.4; font-family: var(--font-sans); list-style: none;">
+                <li style="margin-bottom: 0.8rem;"><strong>[01] CENDOJ - Spanish Judiciary</strong>: 142.5k Homicide Sentencias (2010-2024).</li>
+                <li style="margin-bottom: 0.8rem;"><strong>[02] MultiEURLEX Database</strong>: 20k+ Multi-lingual legal documents from EU Regulation and Directives.</li>
+                <li style="margin-bottom: 0.8rem;"><strong>[03] Caselaw Access Project (CAP)</strong>: Forensic precedents and biomechanical expert evidence patterns.</li>
+            </ul>
+
+            <hr style="border: none; border-top: 1px solid var(--border-formal); margin: 2rem 0;">
+
+            <div id="training-terminal" class="terminal" style="height: 300px;">
+                <div class="terminal-line">Waiting for initialization command...</div>
+            </div>
+            
+            <div style="margin-top: 2.5rem; text-align: center;">
+                <button id="start-btn" class="btn btn-primary" onclick="startTraining()">[ EXECUTE KNOWLEDGE REPLAY ]</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>SEMANTIC CONVERGENCE</h3>
+            <p style="font-size: 0.8rem; color: var(--text-body); margin-bottom: 2rem;">
+                This chart replays the convergence of the "Impartiality Filter". The <strong>Accuracy Index</strong> reflects the model's ability to recognize the <strong>Right-handed weapon (PE-01)</strong> as the invariant forensic truth across different lawyer proposals.
+            </p>
+            <div class="chart-container">
+                <canvas id="trainingChart"></canvas>
+            </div>
+            
+            <div style="text-align: center; margin-top: 3rem;">
+                <a id="next-btn" href="/evidence" class="btn" style="display: none;">[ PROCEED TO FORENSIC ANALYSIS → ]</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let chart;
+    const terminal = document.getElementById('training-terminal');
+    const startBtn = document.getElementById('start-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    function initChart() {
+        const ctx = document.getElementById('trainingChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { 
+                        label: 'Weighted Loss', 
+                        data: [], 
+                        borderColor: '#c5a059', 
+                        backgroundColor: 'rgba(197, 160, 89, 0.1)', 
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    { 
+                        label: 'Factual Accuracy', 
+                        data: [], 
+                        borderColor: '#3d5afe', 
+                        backgroundColor: 'rgba(61, 90, 254, 0.1)', 
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#8b949e', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#8b949e', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: { 
+                    legend: { labels: { color: '#e8e8f0', font: { family: 'Playfair Display' } } } 
+                }
+            }
+        });
+        function reInitialize() {
+            if(confirm("This will WIPE all session data and forensic reports. Continue?")) {
+                localStorage.clear();
+                
+                // Also trigger server-side wipe
+                fetch('/api/reset-session', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    console.log("Server session cleared:", data.cleared);
+                    window.location.reload();
+                });
+            }
+        }
+    }
+
+    function startTraining() {
+        // Clear all persistent state for a fresh investigation
+        localStorage.clear();
+        
+        startBtn.disabled = true;
+        nextBtn.style.display = 'none'; // Hide proceed button
+        terminal.innerHTML = '<div class="terminal-line">[SYSTEM] Booting Pytorch environment...</div>';
+        
+        // Reset chart
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
+        chart.data.datasets[1].data = [];
+        chart.update();
+
+        socket.emit('start_training_replay');
+    }
+
+    socket.on('training_log', (data) => {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.textContent = `[CORE] ${data.message}`;
+        terminal.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+    });
+
+    socket.on('training_update', (data) => {
+        chart.data.labels.push(`Epoch ${data.epoch}`);
+        chart.data.datasets[0].data.push(data.loss);
+        chart.data.datasets[1].data.push(data.accuracy);
+        chart.update();
+    });
+
+    socket.on('training_complete', () => {
+        nextBtn.style.display = 'inline-block';
+        localStorage.setItem('training_complete', 'true');
+    });
+
+    window.onload = () => {
+        initChart();
+        if (localStorage.getItem('training_complete') === 'true') {
+            terminal.innerHTML = '<div class="terminal-line">[SYSTEM] Core State: SYNCHRONIZED (Restored from cache)</div>';
+            startBtn.innerText = "[ RE-INITIALIZE SYSTEM ]";
+            nextBtn.style.display = 'inline-block';
+            
+            // Fill chart with dummy data for restoration
+            chart.data.labels = ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10"];
+            chart.data.datasets[0].data = [0.9, 0.7, 0.5, 0.4, 0.3, 0.2, 0.15, 0.12, 0.1, 0.08];
+            chart.data.datasets[1].data = [0.6, 0.75, 0.82, 0.88, 0.91, 0.94, 0.96, 0.97, 0.98, 0.99];
+            chart.update();
+        }
+    };
+</script>
+{% endblock %}

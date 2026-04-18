@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="page-intro">
+        <h1>DEFENSE STRATEGY ANALYSIS</h1>
+        <p>EVALUATING LINGUISTIC PERSUASION VS. JUDICIAL IMPARTIALITY</p>
+    </div>
+
+    <!-- Paradox Explanation Section -->
+    <div class="card" style="border-left: 5px solid var(--accent-gold);">
+        <h3>IMPARTIALITY INDEX: THE 50.0% BASELINE</h3>
+        <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body);">
+            An impartial judge would score every argument at exactly 0.50. 
+            <br><br>
+            <strong>The Gap:</strong> If a score moves toward <strong>0.80 (+30% Bias)</strong>, the AI is "seduced" by the lawyer's tone. 
+            If it moves toward <strong>0.20 (-30% Bias)</strong>, the AI is "prejudiced" by the phrasing.
+            We calculate the <strong>Partiality Deviation (%)</strong> for each strategy below.
+        </p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>LOG: SEMANTIC SCORING</h3>
+            <div id="scoring-log" class="terminal" style="height: 350px; margin-bottom: 2.5rem;">
+                <div class="terminal-line">Waiting for lawyer submissions...</div>
+            </div>
+            <div style="text-align: center;">
+                <button id="start-btn" class="btn btn-primary" onclick="startScoring()">[ ANALYZE STRATEGIES ]</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>DEFENSE FAVORABILITY MAP</h3>
+            <p style="font-size: 0.8rem; color: var(--text-body); margin-bottom: 1.5rem;">
+                Scores > 0.50 FAVOR Daniel. Scores < 0.50 FAVOR the Prosecution. 
+            </p>
+            <div class="chart-container" style="height: 450px;">
+                <canvas id="scoringChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Visual Results Section -->
+    <div id="conclusion-card" class="card animate-in" style="display: none; border-top: 5px solid var(--accent-gold);">
+        <h3>SYSTEM CONCLUSIONS: IMPARTIALITY AUDIT</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 2rem;">
+            <div>
+                <h4 style="color: var(--accent-gold);">MAXIMUM DEVIATION FOUND</h4>
+                <div id="max-deviation" style="font-size: 4rem; font-family: var(--font-heading); color: var(--danger-legal); margin-top: 1rem;">
+                    0.0%
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-body);">
+                    The system is behaving as a <strong>"biased observer"</strong>—detecting 15 different judicial weights for the SAME factual truth about the knife weapon.
+                </p>
+            </div>
+            <div>
+                <h4 style="color: var(--accent-gold);">LINGUISTIC ANALYSIS</h4>
+                <ul id="audit-list" style="color: var(--text-body); font-family: var(--font-serif); font-size: 1.1rem; line-height: 2;">
+                    <!-- Population via JS -->
+                </ul>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 4rem;">
+            <a href="/judge" class="btn btn-primary" style="padding: 1.2rem 4rem; border-radius: 50px;">
+                [ SUBMIT OPTIMAL PERSUASION STRATEGY → ]
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Legal Document Reader Modal -->
+<div id="document-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px);">
+    <div style="position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; height: 85%; background: #fdfdfd; padding: 4rem; border-radius: 4px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow-y: auto; color: #1a1a1a; font-family: 'Georgia', serif; line-height: 2;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 1rem; margin-bottom: 2rem;">
+            <h2 id="modal-title" style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; text-transform: uppercase; color: #444;">VARIANT REVIEW</h2>
+            <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888;">✕</button>
+        </div>
+        <div id="modal-content" style="font-size: 1.15rem; color: #333; text-align: justify;">
+            <!-- Content Injected via JS -->
+        </div>
+        <div style="margin-top: 4rem; border-top: 1px solid #eee; padding-top: 2rem; font-size: 0.8rem; font-family: 'JetBrains Mono'; color: #999; text-align: center;">
+            OFFICIAL TRANSCRIPT — ALGORITHMIC IMPARTIALITY SYSTEM
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let chart;
+    const log = document.getElementById('scoring-log');
+    const startBtn = document.getElementById('start-btn');
+    const auditList = document.getElementById('audit-list');
+    const conclusionCard = document.getElementById('conclusion-card');
+    const maxDevEl = document.getElementById('max-deviation');
+    const modal = document.getElementById('document-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
+
+    let maxScore = 0;
+    let minScore = 1;
+    let variantTexts = {}; // Store texts for reading
+
+    function initChart() {
+        const ctx = document.getElementById('scoringChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'NLP Strategy Persuasion Level',
+                    data: [],
+                    backgroundColor: (ctx) => ctx.raw >= 0.5 ? 'rgba(197, 160, 89, 0.7)' : 'rgba(161, 43, 43, 0.5)',
+                    borderColor: (ctx) => ctx.raw >= 0.5 ? '#c5a059' : '#a12b2b',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { 
+                        min: 0, 
+                        max: 1, 
+                        ticks: { color: '#8b949e' }, 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        title: { display: true, text: '← PREJUDICE (GUILT) | PERSUASION (INNOCENCE) →', color: '#8b949e' }
+                    },
+                    y: { ticks: { color: '#8b949e' } }
+                }
+            }
+        });
+    }
+
+    function openModal(variantId) {
+        modalTitle.innerText = `LEGAL REVIEW: ${variantId}`;
+        modalContent.innerText = variantTexts[variantId];
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function startScoring() {
+        startBtn.disabled = true;
+        log.innerHTML = '<div class="terminal-line">[SYSTEM] Projecting strategy vectors...</div>';
+        socket.emit('start_scoring_replay');
+    }
+
+    function renderResultRow(id, score, text) {
+        variantTexts[id] = text;
+        const deviation = ((score - 0.5) * 100).toFixed(1);
+        const li = document.createElement('li');
+        li.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;";
+        li.style.color = score >= 0.5 ? 'var(--accent-gold)' : 'var(--danger-legal)';
+        
+        li.innerHTML = `
+            <span><strong>${id}</strong>: Break of <strong>${deviation}%</strong></span>
+            <button onclick="openModal('${id}')" style="background: none; border: 1px solid currentColor; color: inherit; font-family: 'JetBrains Mono'; font-size: 0.7rem; padding: 2px 10px; cursor: pointer; border-radius: 4px;">[ READ FULL ]</button>
+        `;
+        auditList.appendChild(li);
+    }
+
+    socket.on('scoring_log', (data) => {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.innerText = data.message;
+        log.appendChild(line);
+        log.scrollTop = log.scrollHeight;
+    });
+
+    socket.on('scoring_update', (data) => {
+        chart.data.labels.push(data.variant_id);
+        chart.data.datasets[0].data.push(data.score);
+        chart.update();
+
+        renderResultRow(data.variant_id, data.score, data.text);
+
+        if (data.score > maxScore) maxScore = data.score;
+        if (data.score < minScore) minScore = data.score;
+        
+        // Save incremental state for persistence
+        const currentData = JSON.parse(localStorage.getItem('arguments_data') || '[]');
+        currentData.push(data);
+        localStorage.setItem('arguments_data', JSON.stringify(currentData));
+    });
+
+    socket.on('scoring_complete', () => {
+        conclusionCard.style.display = 'block';
+        const totalDev = ((maxScore - minScore) * 100).toFixed(1);
+        maxDevEl.innerText = `${totalDev}%`;
+        localStorage.setItem('arguments_complete', 'true');
+        conclusionCard.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    window.onload = () => {
+        initChart();
+        if (localStorage.getItem('arguments_complete') === 'true') {
+            const savedData = JSON.parse(localStorage.getItem('arguments_data') || '[]');
+            log.innerHTML = '<div class="terminal-line">[SYSTEM] Audit results restored from persistent state.</div>';
+            startBtn.disabled = true;
+            startBtn.innerText = "[ AUDIT LOGGED ]";
+            
+            savedData.forEach(data => {
+                chart.data.labels.push(data.variant_id);
+                chart.data.datasets[0].data.push(data.score);
+                renderResultRow(data.variant_id, data.score, data.text);
+                if (data.score > maxScore) maxScore = data.score;
+                if (data.score < minScore) minScore = data.score;
+            });
+            chart.update();
+            conclusionCard.style.display = 'block';
+            const totalDev = ((maxScore - minScore) * 100).toFixed(1);
+            maxDevEl.innerText = `${totalDev}%`;
+        }
+    };
+</script>
+{% endblock %}

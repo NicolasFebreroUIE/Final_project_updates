@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="page-intro">
+        <h1>FORENSIC ANALYSIS & EVIDENCE SWEEP</h1>
+        <p>REPRESENTATION OF PHYSICAL ASSETS AND BIOMECHANICAL DATA</p>
+    </div>
+
+    <div class="grid">
+        <!-- Physical Evidence Visual -->
+        <div class="card card-dark" style="background: #0d1117; border-color: #30363d;">
+            <div class="status-badge status-warning" style="margin-bottom: 2rem;">CRITICAL ASSET: ITEM PE-01 (WEAPON)</div>
+            <div style="border: 2px solid #30363d; padding: 5px; background: #000; position: relative; border-radius: 4px; overflow: hidden;">
+                <img src="/api/evidence-image" style="width: 100%; filter: contrast(1.1) brightness(0.9); display: block;">
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #0f0; background: rgba(0,0,0,0.8); padding: 5px 10px; border-top: 1px solid #30363d;">
+                    [ SCAN DETECTED: RIGHT-HANDED GRIP MORPHOLOGY ]
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid #30363d; border-radius: 4px;">
+                <h4 style="color: var(--accent); margin-top: 0; font-size: 0.9rem; letter-spacing: 1px;">DETECTION MODEL ARCHITECTURE</h4>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0 0 0; font-size: 0.8rem; color: #8b949e; line-height: 1.8;">
+                    <li><strong style="color: #eee;">Architecture:</strong> Faster R-CNN (Region-based Convolutional Neural Network)</li>
+                    <li><strong style="color: #eee;">Backbone:</strong> ResNet-50-FPN (Feature Pyramid Network)</li>
+                    <li><strong style="color: #eee;">Weights:</strong> COCO Pre-trained (Common Objects in Context)</li>
+                    <li><strong style="color: #eee;">Threshold:</strong> 0.65 (High Precision Forensic Mode)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Technical Report -->
+        <div class="card" style="display: flex; flex-direction: column; min-height: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1.2rem; color: var(--text-heading);">FORENSIC METRICS & FINDINGS</h3>
+                <span style="font-size: 0.7rem; font-family: 'JetBrains Mono'; color: var(--success);">STATUS: ANALYSIS COMPLETE</span>
+            </div>
+
+            <div id="forensic-report-body" style="font-size: 0.95rem; line-height: 1.8; color: var(--text-body); font-family: var(--font-serif); white-space: pre-wrap; margin-bottom: 1rem;">
+                [ SCANNING EVIDENCE DATABASE... ]
+            </div>
+
+            <!-- Conclusion Box -->
+            <div style="margin-top: 0.5rem; padding: 1.2rem; background: #fffbe6; border-left: 4px solid #faad14; color: #856404; font-size: 0.9rem;">
+                <strong style="display: block; margin-bottom: 0.4rem; color: #523e02;">BIOMECHANICAL CONCLUSION:</strong>
+                The physical geometry of the grip pattern and the trajectory of the incisions indicate a <strong>91.4% probability</strong> of execution by a <strong>RIGHT-HANDED</strong> individual. This creates a technical paradox given the confirmed left-hand dominance of prime suspect Daniel Navarro.
+            </div>
+
+            <div id="evidence-terminal" class="terminal" style="margin-top: 1rem; height: 110px; font-size: 0.75rem; background: #000; color: #0f0; padding: 1rem;">
+                <div class="terminal-line">Waiting for analysis sequence...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proceed Section -->
+    <div style="text-align: center; margin-top: 2rem; margin-bottom: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <p style="font-size: 0.85rem; color: var(--text-body); margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Forensic findings have been vectorized and are ready to be integrated into the legal reasoning engine. 
+        </p>
+        <a href="/videos" id="proceedBtn" class="btn btn-primary hidden" style="padding: 1rem 3rem; letter-spacing: 2px; font-weight: 900;">
+            [ PROCEED TO WITNESS ANALYSIS → ]
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const caseContent = document.getElementById('forensic-report-body');
+    const terminal = document.getElementById('evidence-terminal');
+
+    function addLog(msg) {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.innerHTML = `<span style="color: #666;">[LAB-${new Date().toLocaleTimeString()}]</span> ${msg}`;
+        terminal.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    const proceedBtn = document.getElementById('proceedBtn');
+
+    function checkPersistence() {
+        if (localStorage.getItem('forensics_complete') === 'true') {
+            addLog("Forensic findings restored from persistent cache.");
+            addLog("Identification complete: KNIFE [Confidence: 0.960]");
+            proceedBtn.classList.remove('hidden');
+            return true;
+        }
+        return false;
+    }
+
+    socket.on('forensic_analysis_complete', (data) => {
+        if (data.status === 'success') {
+            addLog("Identification complete: KNIFE [Confidence: 0.960]");
+            // Swap to annotated image
+            const evidenceImg = document.querySelector('.card-dark img');
+            evidenceImg.src = '/api/evidence-image?t=' + new Date().getTime(); 
+            proceedBtn.classList.remove('hidden');
+            localStorage.setItem('forensics_complete', 'true');
+        } else {
+            addLog("<span style='color: #ff4a4a;'>Forensic Engine Error: " + data.message + "</span>");
+        }
+    });
+
+    // Load Forensic Data
+    fetch('/api/case-data')
+        .then(res => res.json())
+        .then(data => {
+            const cleanText = (txt) => {
+                return txt.trim()
+                    .replace(/^\s+/gm, '')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^#{1,6}\s?/gm, '')
+                    .replace(/^-{3,}/gm, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            };
+            
+            const parts = data.description.split('---');
+            const forensicPart = parts[6] || parts[4] || data.description; 
+            caseContent.innerHTML = cleanText(forensicPart);
+            
+            if (!checkPersistence()) {
+                addLog("Evidence items vectorized.");
+                addLog("Comparing laterality invariants...");
+                addLog("<span style='color: #ff4a4a; font-weight: bold;'>MISMATCH DETECTED: Suspect(L) vs Evidence(R)</span>");
+                
+                setTimeout(() => addLog("Accessing physical assets (weapon_image.jpg)..."), 1000);
+                setTimeout(() => addLog("Running Object Detection (Faster R-CNN)..."), 2500);
+                setTimeout(() => {
+                    addLog("Compiling final forensic report...");
+                    // TRIGGER REAL BACKEND ANALYSIS
+                    socket.emit('run_forensic_analysis');
+                }, 4500);
+            }
+        });
+</script>
+{% endblock %}

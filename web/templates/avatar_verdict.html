@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALIS-CORE | VIRTUAL PRESENCE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-gold: #c5a059;
+            --danger: #a12b2b;
+            --text-muted: #888;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #avatar-container {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            margin-bottom: 2rem;
+            background: #000;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(197, 160, 89, 0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+
+        #avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* Speaking Visual State */
+        .speaking #avatar-container {
+            box-shadow: 0 0 60px rgba(197, 160, 89, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        #transcription-box {
+            width: 85%;
+            max-width: 900px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 2rem;
+            overflow-y: auto;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #ccc;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-gold) transparent;
+        }
+
+        #transcription-box::-webkit-scrollbar { width: 4px; }
+        #transcription-box::-webkit-scrollbar-thumb { background: var(--accent-gold); }
+
+        #controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .btn-panel {
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 10px 25px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-panel:hover {
+            background: var(--accent-gold);
+            color: black;
+        }
+
+        .btn-panel.stop {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        #status-bar {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status-bar">ALIS-CORE | SECURE AUDIO FEED | MAGISTRATE VIRTUAL PRESENCE</div>
+
+    <div id="avatar-container">
+        <img id="avatar-img" src="/static/avatar.png" alt="Judge Avatar">
+    </div>
+
+    <div id="transcription-box">
+        <!-- Text typed here -->
+    </div>
+
+    <div id="controls">
+        <button id="start-btn" class="btn-panel" onclick="startSpeech()">[ INITIATE DECLARATION ]</button>
+        <button id="stop-btn" class="btn-panel stop" onclick="stopSpeech()">[ TERMINATE FEED ]</button>
+        <button id="reset-btn" class="btn-panel" onclick="resetPage()">[ RESET ]</button>
+    </div>
+
+    <script>
+        const transcriptionBox = document.getElementById('transcription-box');
+        const startBtn = document.getElementById('start-btn');
+        const avatarImg = document.getElementById('avatar-img');
+        const body = document.body;
+        
+        const IMG_CLOSED = "/static/avatar.png";
+        const IMG_OPEN = "/static/avatar_open.png";
+        
+        let typeTimer;
+        let animTimer;
+        let speechActive = false;
+
+        function resetPage() {
+            stopSpeech();
+            transcriptionBox.innerHTML = "";
+            startBtn.disabled = false;
+        }
+
+        function stopSpeech() {
+            window.speechSynthesis.cancel();
+            clearInterval(typeTimer);
+            clearInterval(animTimer);
+            avatarImg.src = IMG_CLOSED;
+            body.classList.remove('speaking');
+            speechActive = false;
+            startBtn.disabled = false;
+        }
+
+        function startSpeech() {
+            if (speechActive) return;
+            
+            const verdictData = JSON.parse(localStorage.getItem('last_verdict'));
+            if (!verdictData) {
+                transcriptionBox.innerHTML = "FATAL ERROR: DATA LOSS IN LOCAL BUFFER.";
+                return;
+            }
+
+            speechActive = true;
+            startBtn.disabled = true;
+            transcriptionBox.innerHTML = "";
+
+            const sentence = verdictData.sentencia;
+            // Narrative summary text
+            const fullText = sentence.summary || `Based on the judicial findings, this court upholds the presumption of innocence for the accused.`;
+            const words = fullText.split(' ');
+            
+            const utterance = new SpeechSynthesisUtterance(fullText);
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Google')) || voices.find(v => v.lang.includes('en'));
+            if (preferredVoice) utterance.voice = preferredVoice;
+            utterance.rate = 0.85;
+
+            // Lip-Sync Animation Logic
+            function startLipSync() {
+                clearInterval(animTimer);
+                animTimer = setInterval(() => {
+                    avatarImg.src = (avatarImg.src.includes('avatar_open')) ? IMG_CLOSED : IMG_OPEN;
+                }, 180 + Math.random() * 100); // Randomize slightly for realism
+            }
+
+            utterance.onstart = () => {
+                body.classList.add('speaking');
+                startLipSync();
+                
+                // Start typing with a slight sync delay to match audio onset
+                let currentWord = 0;
+                setTimeout(() => {
+                    typeTimer = setInterval(() => {
+                        if (currentWord < words.length) {
+                            const displayed = words.slice(0, currentWord + 1).join(' ');
+                            transcriptionBox.innerHTML = displayed + '<span style="color:var(--accent-gold); font-weight:bold;"> |</span>';
+                            transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
+                            currentWord++;
+                        } else {
+                            clearInterval(typeTimer);
+                            clearInterval(animTimer);
+                            avatarImg.src = IMG_CLOSED;
+                        }
+                    }, 410); // Tuned for the 0.85 speed
+                }, 150); 
+            };
+
+            utterance.onend = () => {
+                stopSpeech();
+                transcriptionBox.innerHTML = fullText;
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Pre-load voices
+        window.speechSynthesis.getVoices();
+    </script>
+</body>
+</html>
