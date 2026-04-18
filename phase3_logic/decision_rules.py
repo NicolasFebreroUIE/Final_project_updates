@@ -55,7 +55,7 @@ RULES = [
         "id": "R05",
         "condition": "witness_reactivity > 0.60 AND witness_dominant_emotion == angry",
         "effect": "score_adjustment",
-        "value": -0.15,
+        "value": -0.10,
         "legal_principle": "Witness emotional instability — sudden aggressive reactivity reduces testimony weight"
     }
 ]
@@ -108,7 +108,7 @@ def apply_rules(raw_score: float,
     suspect_laterality = 'left'  # Daniel Navarro is left-handed (case fact)
 
     if forensic_value == 'right_handed' and suspect_laterality == 'left':
-        adjustment = -0.40 # Decisive forensic mismatch
+        adjustment = -0.30 # Decisive forensic mismatch
         adjusted_score += adjustment
         total_adjustment += adjustment
         applied_rules.append({
@@ -124,7 +124,7 @@ def apply_rules(raw_score: float,
     # R02: Witness deception indicator
     witness_deception = witness_report.get('deception_indicator', 0)
 
-    if witness_deception > 0.60:
+    if witness_deception > 0.40:
         adjustment = RULES[2]['value']
         adjusted_score += adjustment
         total_adjustment += adjustment
@@ -145,8 +145,8 @@ def apply_rules(raw_score: float,
     suspect_consistency = suspect_report.get('emotional_consistency_score', 0)
     suspect_emotion = suspect_report.get('dominant_emotion', '').lower()
 
-    if suspect_consistency > 0.40 and suspect_emotion in ['sad', 'fear', 'fearful']:
-        adjustment = -0.15 # Strong reduction for stress-compatible profile
+    if suspect_consistency > 0.25 and suspect_emotion in ['sad', 'fear', 'fearful']:
+        adjustment = -0.10 # Reduction for stress-compatible profile
         adjusted_score += adjustment
         total_adjustment += adjustment
         applied_rules.append({
@@ -189,7 +189,7 @@ def apply_rules(raw_score: float,
     witness_reactivity = witness_report.get('reactivity_index', 0)
     witness_emotion = witness_report.get('dominant_emotion', '')
 
-    if witness_reactivity > 0.60 and witness_emotion == 'angry':
+    if witness_reactivity > 0.50 and witness_emotion in ['angry', 'fear', 'disgust']:
         adjustment = RULES[5]['value']
         adjusted_score += adjustment
         total_adjustment += adjustment
