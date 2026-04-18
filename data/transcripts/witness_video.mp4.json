@@ -1,5 +1,157 @@
 [
-    {"start": 0.0, "end": 4.0, "text": "I saw him near the alleyway around 10 PM. He was wearing a dark hoodie."},
-    {"start": 4.5, "end": 8.0, "text": "He looked nervous, kept looking over his shoulder. I'm certain it was him."},
-    {"start": 8.5, "end": 12.0, "text": "I've seen him in the neighborhood before. He was holding something heavy in his right hand."}
+  {
+    "id": 0,
+    "seek": 0,
+    "start": 0.0,
+    "end": 3.0,
+    "text": " I don't know what you're asking me.",
+    "tokens": [
+      50364,
+      286,
+      500,
+      380,
+      458,
+      437,
+      291,
+      434,
+      3365,
+      385,
+      13,
+      50514
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 1,
+    "seek": 0,
+    "start": 3.0,
+    "end": 5.0,
+    "text": " But why I didn't do anything.",
+    "tokens": [
+      50514,
+      583,
+      983,
+      286,
+      994,
+      380,
+      360,
+      1340,
+      13,
+      50614
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 2,
+    "seek": 0,
+    "start": 5.0,
+    "end": 6.0,
+    "text": " It's clearly my brother.",
+    "tokens": [
+      50614,
+      467,
+      311,
+      4448,
+      452,
+      3708,
+      13,
+      50664
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 3,
+    "seek": 0,
+    "start": 6.0,
+    "end": 8.0,
+    "text": " Stop telling me that I could be the suspect.",
+    "tokens": [
+      50664,
+      5535,
+      3585,
+      385,
+      300,
+      286,
+      727,
+      312,
+      264,
+      9091,
+      13,
+      50764
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 4,
+    "seek": 0,
+    "start": 8.0,
+    "end": 9.0,
+    "text": " He's clearly him.",
+    "tokens": [
+      50764,
+      634,
+      311,
+      4448,
+      796,
+      13,
+      50814
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 5,
+    "seek": 0,
+    "start": 9.0,
+    "end": 10.0,
+    "text": " What the...",
+    "tokens": [
+      50814,
+      708,
+      264,
+      485,
+      50864
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  },
+  {
+    "id": 6,
+    "seek": 0,
+    "start": 10.0,
+    "end": 12.0,
+    "text": " Shut up! I'm not him.",
+    "tokens": [
+      50864,
+      13870,
+      493,
+      0,
+      286,
+      478,
+      406,
+      796,
+      13,
+      50964
+    ],
+    "temperature": 0.0,
+    "avg_logprob": -0.25467517559344954,
+    "compression_ratio": 1.355072463768116,
+    "no_speech_prob": 0.1966426819562912
+  }
 ]

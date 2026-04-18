@@ -321,6 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     socket.on('transcription_chunk', (data) => {
+        console.log(`[TRANSCRIPT] Chunk received for ${data.type}:`, data.text);
         const box = document.getElementById(`${data.type}Transcript`);
         if(box.innerHTML.includes("[Awaiting transcription...]")) {
             // Keep the header, clear the placeholder

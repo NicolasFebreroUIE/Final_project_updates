@@ -4,6 +4,7 @@ import json
 import os
 import random
 import base64
+import subprocess
 import numpy as np
 import cv2
 from flask_socketio import emit
@@ -51,9 +52,35 @@ def _get_whisper_model():
         import whisper
         import torch
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"[FORENSIC] Loading Whisper model on {device}...")
-        _whisper_model = whisper.load_model("base", device=device)
+        print(f"[FORENSIC] Loading Whisper model (tiny) on {device}...")
+        _whisper_model = whisper.load_model("tiny", device=device)
     return _whisper_model
+
+def _load_audio_from_video(video_path):
+    """Extract audio as numpy float32 array at 16kHz mono using imageio_ffmpeg."""
+    import imageio_ffmpeg
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    cmd = [
+        ffmpeg_exe, "-nostdin", "-threads", "0",
+        "-i", video_path,
+        "-f", "s16le", "-ac", "1",
+        "-acodec", "pcm_s16le", "-ar", "16000",
+        "-"
+    ]
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg error: {result.stderr.decode('utf-8', errors='replace')[-200:]}")
+    audio = np.frombuffer(result.stdout, np.int16).flatten().astype(np.float32) / 32768.0
+    return audio
+
+def _transcribe_video(video_path):
+    """Transcribe a video file. Returns list of segments."""
+    import torch
+    model = _get_whisper_model()
+    audio = _load_audio_from_video(video_path)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    result = model.transcribe(audio, language="en", fp16=(device == "cuda"))
+    return result.get('segments', [])
 
 def register_socketio_events(socketio):
     global _socketio
@@ -68,27 +95,27 @@ def register_socketio_events(socketio):
 
         with open(history_path, 'r') as f:
             history = json.load(f)
-        
+
         emit('training_log', {'message': "Initializing Legal-BERT-Spanish Core Environment..."})
         time.sleep(1)
         emit('training_log', {'message': "✓ Transformer Encoder - 12 Layers, 768 Hidden, 12 Heads"})
         time.sleep(0.5)
         emit('training_log', {'message': "Loading Historical Metrics [CENDOJ / EURLEX Database]..."})
-        
+
         # Simulate 10 epochs (or whatever is in history)
         epochs = history.get('epochs', [])
         for i, epoch in enumerate(epochs):
-            _socketio.sleep(0.6) 
+            _socketio.sleep(0.6)
             emit('training_update', {
                 'epoch': i + 1,
                 'loss': epoch.get('loss', 0),
                 'accuracy': epoch.get('accuracy', 0)
             })
             emit('training_log', {'message': f"Epoch {i+1}/10: Training Loss: {epoch.get('loss', 0):.6f} | Validation Accuracy: {epoch.get('accuracy', 0):.4f}"})
-        
+
         emit('training_complete', {'status': 'success'})
         emit('training_log', {'message': "System Core State: SYNCHRONIZED."})
-        
+
         # Pre-load Video Pipeline for Forensic Pass
         emit('training_log', {'message': "Warming up Forensic Vision Head (GPU)..."})
         try:
@@ -103,7 +130,7 @@ def register_socketio_events(socketio):
         # Immediate feedback pulse
         emit('scoring_log', {'message': "[SYSTEM] Establishing Secure Neural Handshake... OK"})
         _socketio.sleep(0.5)
-        
+
         try:
             emit('scoring_log', {'message': "[CORE] Loading Linguistic Weights (BERT-Spanish-v4)... DONE"})
             _socketio.sleep(0.4)
@@ -113,7 +140,7 @@ def register_socketio_events(socketio):
             _socketio.sleep(0.4)
             emit('scoring_log', {'message': "[JUDGE] Synchronizing Strategy Matrix with Judicial Benchmarks..."})
             _socketio.sleep(0.6)
-            
+
             # Load variants directly from source file to ensure we have current data
             variants_path = os.path.join(PROJECT_ROOT, "data", "arguments", "lawyer_variants.md")
             if not os.path.exists(variants_path):
@@ -122,7 +149,7 @@ def register_socketio_events(socketio):
 
             with open(variants_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             # Fast Parse
             variants = []
             parts = content.split('## VARIANT ')
@@ -139,16 +166,16 @@ def register_socketio_events(socketio):
             emit('scoring_log', {'message': f"[SYSTEM] Successfully mapped {len(variants)} strategic variants."})
             emit('scoring_log', {'message': "[AUDIT] Executing Real-Time Neural Audit... ACTIVE"})
             _socketio.sleep(0.8)
-            
+
             # Use global lazy-loaded model
             model = _get_model()
             if model is None:
                 emit('scoring_log', {'message': "Error: CentralModel pkl not found on server."})
                 return
-            
+
             texts = [v['text'] for v in variants]
             scores = model.score_batch(texts)
-            
+
             # Prepare results for saving (so the Judge page can see them later)
             results_to_save = {
                 "variant_scores": {v['id']: s for v, s in zip(variants, scores)},
@@ -184,29 +211,29 @@ def register_socketio_events(socketio):
         variant_id = data.get('variant_id', 'variant_01')
         emit('judge_log', {'message': f"Reviewing submitted evidence (variant: {variant_id})..."})
         time.sleep(1)
-        
+
         try:
             # Run the actual integration live!
             results = run_final_integration(variant_id)
-            
+
             emit('judge_log', {'message': f"  ✓ NLP Persuasion: {results['raw_nlp_score']:.4f}"})
             _socketio.sleep(0.5)
             emit('judge_log', {'message': f"  ✓ Forensic Mismatch: {results['evidence_summary']['value'].upper()}"})
             _socketio.sleep(0.5)
-            
+
             # Log Video Evidence Integration
             if results.get('suspect_report'):
                 s_report = results['suspect_report']
                 emit('judge_log', {'message': f"  ✓ Suspect Profile: {s_report.get('dominant_emotion', 'N/A').upper()} (Consistency: {s_report.get('emotional_consistency_score', 0):.2f})"})
                 _socketio.sleep(0.4)
-            
+
             if results.get('witness_report'):
                 w_report = results['witness_report']
                 emit('judge_log', {'message': f"  ✓ Witness Credibility: Reactivity Index {w_report.get('reactivity_index', 0):.2f}"})
                 _socketio.sleep(0.4)
 
             emit('judge_log', {'message': "Applying Alis-Core Judicial Rules..."})
-            
+
             for adj in results['adjustments']:
                 _socketio.sleep(0.4)
                 emit('judge_log', {'message': f"    [RULE {adj['rule']}] {adj['principle']} → {adj['adjustment']:.2f}"})
@@ -216,16 +243,16 @@ def register_socketio_events(socketio):
                 verdict_text = generate_verdict_speech_text(results)
                 audio_path = os.path.join(PROJECT_ROOT, "web", "static", "audio", "verdict.mp3")
                 os.makedirs(os.path.dirname(audio_path), exist_ok=True)
-                
+
                 tts = gTTS(text=verdict_text, lang='en')
                 tts.save(audio_path)
                 results['audio_available'] = True
             except Exception as audio_err:
                 emit('judge_log', {'message': f"Audio generation skipped (Connection required for TTS): {str(audio_err)}"})
                 results['audio_available'] = False
-            
+
             emit('verdict_ready', results)
-            
+
         except Exception as e:
             emit('judge_log', {'message': f"Error during verdict generation: {str(e)}"})
 
@@ -234,7 +261,7 @@ def register_socketio_events(socketio):
         vid_type = data.get('type', 'suspect')
         video_name = f"{vid_type}_video.mp4"
         video_path = os.path.join(PROJECT_ROOT, "data", "videos", video_name)
-        
+
         if video_path not in _transcript_cache:
             # Check for pre-transcribed JSON
             transcript_json_path = os.path.join(PROJECT_ROOT, "data", "transcripts", f"{video_name}.json")
@@ -245,12 +272,11 @@ def register_socketio_events(socketio):
             else:
                 print(f"[FORENSIC] Starting silent background transcription for {video_name}", flush=True)
                 _transcript_cache[video_path] = "TRANSCRIPTION_PENDING"
-                
+
                 def run_whisper_bg(v_path, v_type):
                     try:
-                        model = _get_whisper_model()
-                        result = model.transcribe(v_path, language="en")
-                        _transcript_cache[v_path] = result.get('segments', [])
+                        segments = _transcribe_video(v_path)
+                        _transcript_cache[v_path] = segments
                         print(f"[FORENSIC] Silent transcription complete for {v_path}", flush=True)
                         _socketio.emit('transcription_chunk', {
                             'type': v_type,
@@ -297,7 +323,7 @@ def register_socketio_events(socketio):
 
                 # Agitation score
                 agitation = pipeline._get_agitation_score(frame)
-                
+
                 # Accumulate for final report
                 _realtime_emotions[vid_type].append(emotion)
                 _realtime_scores[vid_type].append(probs)
@@ -306,7 +332,7 @@ def register_socketio_events(socketio):
                 current_time = float(data.get('time', 0))
                 video_name = f"{vid_type}_video.mp4"
                 video_path = os.path.join(PROJECT_ROOT, "data", "videos", video_name)
-                
+
                 if video_path not in _transcript_cache:
                     # 1. Check if pre-transcribed JSON exists
                     transcript_json_path = os.path.join(PROJECT_ROOT, "data", "transcripts", f"{video_name}.json")
@@ -317,7 +343,7 @@ def register_socketio_events(socketio):
                     else:
                         print(f"[FORENSIC] Transcription not in cache for {video_path}. Starting task.", flush=True)
                         _transcript_cache[video_path] = "TRANSCRIPTION_PENDING"
-                        
+
                         # Notify user immediately in the log
                         emit('transcription_chunk', {
                             'type': vid_type,
@@ -327,10 +353,9 @@ def register_socketio_events(socketio):
 
                     def run_whisper_bg(v_path, v_type):
                         try:
-                            model = _get_whisper_model()
                             print(f"[FORENSIC] Analyzing audio (BG): {v_path}", flush=True)
-                            result = model.transcribe(v_path, language="en")
-                            _transcript_cache[v_path] = result.get('segments', [])
+                            segments = _transcribe_video(v_path)
+                            _transcript_cache[v_path] = segments
                             print(f"[FORENSIC] BG Transcription complete for {v_path}", flush=True)
                             # Notify UI that transcription is ready
                             _socketio.emit('transcription_chunk', {
@@ -402,12 +427,12 @@ def register_socketio_events(socketio):
     def handle_finalize(data):
         vid_type = data.get('type', 'suspect')
         print(f"[FORENSIC] Finalizing real-time report for {vid_type}...")
-        
+
         try:
             pipeline = _get_pipeline()
             emotions = _realtime_emotions[vid_type]
             scores = _realtime_scores[vid_type]
-            
+
             if not emotions:
                 print(f"[FORENSIC] No frames captured for {vid_type}. Skipping report.")
                 return
@@ -423,15 +448,15 @@ def register_socketio_events(socketio):
                 frame_indices=list(range(len(emotions))),
                 gradcam_output_path=os.path.join(PROJECT_ROOT, "outputs", f"{vid_type}_gradcam.png")
             )
-            
+
             # Save report to the standard location
             report_path = os.path.join(PROJECT_ROOT, "phase2_cv", "reports", f"{vid_type}_video_report.json")
             os.makedirs(os.path.dirname(report_path), exist_ok=True)
             with open(report_path, 'w', encoding='utf-8') as f:
                 json.dump(report, f, indent=4)
-            
+
             print(f"[FORENSIC] Real-time report saved to {report_path}")
-            
+
             # Emit completion to UI
             emit('video_complete', {
                 'type': vid_type,
@@ -444,13 +469,13 @@ def register_socketio_events(socketio):
                     'narrative': report['interpretation']
                 }
             })
-            
+
             # Reset for next run
             _realtime_emotions[vid_type] = []
             _realtime_scores[vid_type] = []
             _last_sent_segment_id[vid_type] = -1
             _last_progress_time[vid_type] = -1
-            
+
         except Exception as e:
             print(f"[FORENSIC] Error finalizing report: {e}")
 
@@ -462,12 +487,12 @@ def register_socketio_events(socketio):
             import subprocess
             script_path = os.path.join(PROJECT_ROOT, "scratch", "annotate_weapon.py")
             python_path = os.path.join(PROJECT_ROOT, ".venv", "Scripts", "python.exe")
-            
+
             # Run the annotation script
             subprocess.run([python_path, script_path], check=True)
             print("[FORENSIC] Analysis complete. Report and Annotation generated.")
             emit('forensic_analysis_complete', {'status': 'success'})
-            
+
         except Exception as e:
             emit('forensic_analysis_complete', {'status': 'error', 'message': str(e)})
             print(f"[FORENSIC] Analysis Error: {e}")
@@ -477,7 +502,7 @@ def generate_verdict_speech_text(results):
     variant_id = results['selected_variant_id']
     s_id = variant_id.split('_')[1]
     guilt_idx = f"{results['adjusted_score']*100:.2f}"
-    
+
     # Variety Pools for Speech
     intros = [
         "COURTHOUSE OF MADRID. CASE 2024 CR 0471.",
