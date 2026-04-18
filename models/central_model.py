@@ -101,7 +101,8 @@ class CentralModel:
     def train(self, echr_data_path=None, epochs=10, batch_size=32, lr=1e-3):
         """
         Train the scoring head on ECHR dataset.
-        Uses violation/no-violation as binary labels.
+        Metaheuristic Note: Best hyperparameters can be pre-calculated 
+        using models/hyperparameter_optimizer.py (Genetic Algorithm).
         """
         print("  [MODEL] Preparing ECHR training data...")
 
