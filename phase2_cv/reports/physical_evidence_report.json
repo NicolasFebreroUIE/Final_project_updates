@@ -1,8 +1,0 @@
-{
-    "item_id": "PE-01",
-    "label": "KNIFE",
-    "value": "right_handed",
-    "confidence": 0.96,
-    "method": "Biomechanical Grip Morphology (Faster R-CNN v4)",
-    "interpretation": "The tool marks and grip geometry indicate a decisive right-handed lateral dominance (96% certainty)."
-}
